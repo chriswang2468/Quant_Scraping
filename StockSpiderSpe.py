@@ -3,6 +3,7 @@ import numpy as np
 from bs4 import BeautifulSoup
 import re
 import requests
+import mongo_connection as mongo
 
 f = lambda x: x.text.strip()#去除空字符串
 
@@ -21,6 +22,9 @@ class Spider():
         print(self.url)
 
     def spider(self):
+        server=setServer()
+        server.start(server)
+        db=mongoConnection()
         headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'}
         TZ_data = pd.DataFrame()
         HT_data = pd.DataFrame()
