@@ -46,6 +46,7 @@ class Spider():
                         htmlT = BeautifulSoup(respT.text,'lxml') #帖子首页页面解析
                         fttime_html= htmlT.find_all(class_="zwfbtime")
                         fttime = re.findall('\d+[-]\d+[-]\d+\s\d+[:]\d+[:]\d+',fttime_html[0].contents[0])[0]#发帖时间
+                        
                         biaoti_text = htmlT.find_all(id="zwconttbt")[0].text#发帖标题
                         biaoti_text = biaoti_text.strip()#去除空字符串
                         biaoti_info = htmlT.find_all(class_="stockcodec")[0].text#标题详细内容     未去除空字符串
@@ -61,6 +62,7 @@ class Spider():
                         
                         tiezi = {'date':fttime,'title':biaoti_text,'num_visited':ll,'num_comment':pl,'related_arc':xg,'url':hrefT,'contents':biaoti_info}
                         # print(tiezi)
+                        print(biaoti_text)
                         tiezi_data = pd.DataFrame(tiezi,index=['0']) #每次都更新
                         HT_data_sub = pd.DataFrame()
                         j = 1
@@ -71,30 +73,15 @@ class Spider():
                             hrefTJ = hrefT.replace('.html',nextT)#帖子页面
                             respT = requests.get(hrefTJ,headers=headers) #获取帖子页面
                             htmlT = BeautifulSoup(respT.text,'lxml') #帖子页面解析
-                            huitie_time = htmlT.find_all('div',class_="zwlitime")
-                            huitie_time = list(huitie_time)
-                            huitie_time = pd.Series(huitie_time)
-                            huitie_time = huitie_time.apply(self.time_re)
-                            huitie_info = htmlT.find_all('div',class_="zwlitext stockcodec")
-                            huitie_info = pd.Series(list(huitie_info))
-                            huitie_info = huitie_info.apply(f)
-                            huitie_data = {'time':huitie_time,'tiezi':huitie_info}
-                            huitie_data = pd.DataFrame(huitie_data,columns=['time','tiezi'])#每次都更新
-                            HT_data_sub = pd.concat([HT_data_sub,huitie_data]) #不同的帖子不同的数据
-                            #HT_data_sub = HT_data_sub.fillna(value='无效回复')
-                            #HT_data_sub = HT_data_sub[HT_data_sub['tiezi']!='']
+                            huitie_time = htmlT.find_all('div',class_="zwlitime")[0].text
+                            temp=huitie_time.split(" ")
+                            huitie_time=temp[1]+" "+temp[-1]  
+                            huitie_info = htmlT.find_all('div',class_="zwlitext stockcodec")[0].text.strip()
+                            userid=htmlT.find_all('span',class_="zwnick")[0].find_all('a')[0]["data-popper"]
+                            username=htmlT.find_all('span',class_="zwnick")[0].find_all('a')[0].text
                             print(huitie_time)
                             print(huitie_info)
-                            print(HT_data_sub)
-                            # print(HT_data_sub)
-                            # print(j)
                             j += 1
-                        data = pd.concat([data,HT_data_sub])#添加第一行为标题
-                        data['title']=biaoti_text#添加标题列
-                        data['fftime']=fttime#添加发帖时间列
-                        TZ_data = pd.concat([TZ_data,tiezi_data])#所有帖子信息
-                        HT_data = pd.concat([HT_data,data])#所有帖子的回帖信息
-                        #HT_data = HT_data[HT_data['tiezi']!='']
             print('第%s页抓取完毕！'%i)
             i += 1
         print('爬取完毕,共爬取%s第%s页到第%s页帖子数据' %(self.name,self.start,self.stop))
