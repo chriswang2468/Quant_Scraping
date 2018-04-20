@@ -55,6 +55,7 @@ class Spider():
                 if item.find_all('em')==[] or item.find_all('em')[0].text=='':
                     info = item.find_all('span',class_='l3')[0].find_all('a')[0]#每个帖子的具体信息
                     LL= int(item.find_all('span',class_="l1")[0].contents[0])#判断帖子是否异常的指标
+                    print(LL)
                     if LL > 50 :
                         hrefT = 'http://guba.eastmoney.com'+ info['href'] #帖子链接
                         respT=requests.get(hrefT,headers=headers) #获取帖子信息
@@ -85,8 +86,9 @@ class Spider():
                         tiezi_data = pd.DataFrame(tiezi,index=['0']) #每次都更新
                         HT_data_sub = pd.DataFrame()
                         j = 1
-                        # print(biaoti_text)
+                        print(biaoti_text)
                         ply = np.ceil(int(pl)/30)
+                        pnum=0
                         comment_list=[]
                         while j <= ply:  #抓取全部评论
                             nextT = '_'+str(j)+'.html'
@@ -106,7 +108,11 @@ class Spider():
                                 commentid_id=commentid_list[pnum]["data-huifuid"]
                                 userid=htmlT.find_all('span',class_="zwnick")[pnum].find_all('a')[0]["data-popper"]
                                 username=htmlT.find_all('span',class_="zwnick")[pnum].find_all('a')[0].text
-                                huitie_info = htmlT.find_all('div',class_="zwlitext stockcodec")[pnum].text.strip()
+
+                                if htmlT.find_all('div',class_="zwlitext stockcodec") and pnum<len(htmlT.find_all('div',class_="zwlitext stockcodec")):
+                                    huitie_info = htmlT.find_all('div',class_="zwlitext stockcodec")[pnum].text.strip()
+                                else:
+                                    continue
                                 username=htmlT.find_all('span',class_="zwnick")[pnum].find_all('a')[0].text
                                 # print(k)
                                 # print(commentid_id)
@@ -151,7 +157,7 @@ class Spider():
             pbar.update(10*i+1)
         pbar.finish()
         print('爬取完毕,共爬取%s第%s页到第%s页帖子数据' %(self.name,self.start,self.stop))
-        # server.stop()
+        server.stop()
         sys.stdout.write("\n")
         return(TZ_data,HT_data)
 
