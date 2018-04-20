@@ -7,6 +7,11 @@ import time
 import sys
 # import mongo_connection as mongo
 import local_mongo_connection as mongo
+from progressbar import AnimatedMarker, Bar, BouncingBar, Counter, ETA, \
+    AdaptiveETA, FileTransferSpeed, FormatLabel, Percentage, \
+    ProgressBar, ReverseBar, RotatingMarker, \
+    SimpleProgress, Timer
+
 
 f = lambda x: x.text.strip()#去除空字符串
 
@@ -29,17 +34,15 @@ class Spider():
         # server=mongo.setServer()
         # server.start()
         # db=mongo.mongoConnection(server)
-        toolbar_width=self.stop
-        sys.stdout.write("[%s]" % (" " * toolbar_width))
-        sys.stdout.flush()
-        sys.stdout.write("\b" * (toolbar_width+1)) # return to start of line, after '['
+        widgets = ['Test: ', Percentage(), ' ', Bar(marker=RotatingMarker()),
+               ' ', ETA(), ' ', FileTransferSpeed()]
+        pbar = ProgressBar(widgets=widgets, maxval=10000000).start()
         db=mongo.localMongo()
         headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'}
         TZ_data = pd.DataFrame()
         HT_data = pd.DataFrame()
         i = self.start
         while i <= self.stop: #设定抓取页数
-            time.sleep(0.1)
             next = ',f_'+str(i)+'.html'#按照发帖时间排序
             href = self.url.replace(',f_1.html',next)#股吧帖子列表页面
             resp=requests.get(href,headers=headers) #获取股吧页面
@@ -136,8 +139,8 @@ class Spider():
                 
             print('第%s页抓取完毕！'%i)
             i += 1
-            sys.stdout.write("-")
-            sys.stdout.flush()
+            pbar.update(10*i+1)
+        pbar.finish()
         print('爬取完毕,共爬取%s第%s页到第%s页帖子数据' %(self.name,self.start,self.stop))
         # server.stop()
         sys.stdout.write("\n")
