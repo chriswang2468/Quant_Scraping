@@ -3,6 +3,8 @@ import numpy as np
 from bs4 import BeautifulSoup
 import re
 import requests
+import time
+import sys
 # import mongo_connection as mongo
 import local_mongo_connection as mongo
 
@@ -27,13 +29,17 @@ class Spider():
         # server=mongo.setServer()
         # server.start()
         # db=mongo.mongoConnection(server)
+        toolbar_width=self.stop
+        sys.stdout.write("[%s]" % (" " * toolbar_width))
+        sys.stdout.flush()
+        sys.stdout.write("\b" * (toolbar_width+1)) # return to start of line, after '['
         db=mongo.localMongo()
-        print(db.collection_names())
         headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36'}
         TZ_data = pd.DataFrame()
         HT_data = pd.DataFrame()
         i = self.start
         while i <= self.stop: #设定抓取页数
+            time.sleep(0.1)
             next = ',f_'+str(i)+'.html'#按照发帖时间排序
             href = self.url.replace(',f_1.html',next)#股吧帖子列表页面
             resp=requests.get(href,headers=headers) #获取股吧页面
@@ -54,22 +60,22 @@ class Spider():
                         fttime = re.findall('\d+[-]\d+[-]\d+\s\d+[:]\d+[:]\d+',fttime_html[0].contents[0])[0]#发帖时间
                         tag_data=info['href'][1:-5].split(",")
                         art_id=tag_data.pop()
-                        print(art_id)
-                        print(tag_data)
+                        # print(art_id)
+                        # print(tag_data)
 
                         biaoti_text = htmlT.find_all(id="zwconttbt")[0].text.strip()#发帖标题
                         biaoti_info = htmlT.find_all(class_="stockcodec")[0].text.strip()#标题详细内容     未去除空字符串
                        
                         publisher_id=htmlT.find_all('div',id="zwconttbn")[0].find_all('a')[0]["data-popper"]
                         publisher_name=htmlT.find_all('div',id="zwconttbn")[0].find_all('a')[0].text
-                        print(art_id)
-                        print(biaoti_text)
+                        # print(art_id)
+                        # print(biaoti_text)
                         tiezi_info = htmlT.find_all(text=re.compile('var num=\d+;var count=\d+'))#根据标签内容查找
                         ll,xg = re.findall('\d+',tiezi_info[0])
                         pinglun = htmlT.find_all(text=re.compile('var pinglun_num=\d+'))
                         pinglun= re.findall('var pinglun_num=\d+',pinglun[0])
                         pl = re.findall('\d+',pinglun[0])[0]
-                        print(xg)
+                        # print(xg)
                         tiezi = {'date':fttime,'title':biaoti_text,'num_visited':ll,'num_comment':pl,'related_arc':xg,'url':hrefT,'contents':biaoti_info}
                         # print(tiezi)
                         # print(biaoti_text)
@@ -98,11 +104,11 @@ class Spider():
                                 commentid_id=commentid_list[pnum]["data-huifuid"]
                                 userid=htmlT.find_all('span',class_="zwnick")[pnum].find_all('a')[0]["data-popper"]
                                 username=htmlT.find_all('span',class_="zwnick")[pnum].find_all('a')[0].text
-                                print(k)
-                                print(commentid_id)
-                                print(userid)
-                                print(username)
-                                print(huitie_info[pnum])
+                                # print(k)
+                                # print(commentid_id)
+                                # print(userid)
+                                # print(username)
+                                # print(huitie_info[pnum])
                                 comment_data={
                                 "comment_id":commentid_id,
                                 "userid":userid,
@@ -130,8 +136,11 @@ class Spider():
                 
             print('第%s页抓取完毕！'%i)
             i += 1
+            sys.stdout.write("-")
+            sys.stdout.flush()
         print('爬取完毕,共爬取%s第%s页到第%s页帖子数据' %(self.name,self.start,self.stop))
         # server.stop()
+        sys.stdout.write("\n")
         return(TZ_data,HT_data)
 
 
