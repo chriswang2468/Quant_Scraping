@@ -131,20 +131,20 @@ class Spider():
                                 
                                 comment_list.append(comment_data)
                             j += 1
-                        # db.article_data.insert({
-                        #     "arc_id":art_id,
-                        #     "tags":tag_data,
-                        #     "title":biaoti_text,
-                        #     "data":fttime,
-                        #     "publisher_id":publisher_id,
-                        #     "publisher_name":publisher_name,
-                        #     "num_visited":ll,
-                        #     "num_comment":pl,
-                        #     "related_arc":xg,
-                        #     "url":hrefT,
-                        #     "contents":biaoti_info,
-                        #     "comments":comment_list
-                        #     })
+                        db.article_data.insert({
+                            "arc_id":art_id,
+                            "tags":tag_data,
+                            "title":biaoti_text,
+                            "data":fttime,
+                            "publisher_id":publisher_id,
+                            "publisher_name":publisher_name,
+                            "num_visited":ll,
+                            "num_comment":pl,
+                            "related_arc":xg,
+                            "url":hrefT,
+                            "contents":biaoti_info,
+                            "comments":comment_list
+                            })
                 
             print('第%s页抓取完毕！'%i)
             i += 1
