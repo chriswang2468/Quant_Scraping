@@ -97,45 +97,54 @@ class Spider():
                             huitie_time = htmlT.find_all('div',class_="zwlitime")
                             huitie_time = list(huitie_time)
                             huitie_time = pd.Series(huitie_time)
-
                             huitie_time = huitie_time.apply(self.time_re)
-                            huitie_info = htmlT.find_all('div',class_="zwlitext stockcodec")
-                            huitie_info = pd.Series(list(huitie_info))
-                            huitie_info = huitie_info.apply(f).tolist()
+                            # huitie_info = htmlT.find_all('div',class_="zwlitext stockcodec")
+                            # huitie_info = pd.Series(list(huitie_info))
+                            # huitie_info = huitie_info.apply(f).tolist()
                             pnum=0
                             for k in huitie_time:
                                 commentid_id=commentid_list[pnum]["data-huifuid"]
                                 userid=htmlT.find_all('span',class_="zwnick")[pnum].find_all('a')[0]["data-popper"]
+                                username=htmlT.find_all('span',class_="zwnick")[pnum].find_all('a')[0].text
+                                huitie_info = htmlT.find_all('div',class_="zwlitext stockcodec")[pnum].text.strip()
                                 username=htmlT.find_all('span',class_="zwnick")[pnum].find_all('a')[0].text
                                 # print(k)
                                 # print(commentid_id)
                                 # print(userid)
                                 # print(username)
                                 # print(huitie_info[pnum])
+                                if huitie_info=="":
+                                    pnum+=1 
+                                    continue
+                                # print(username)
+                                # print(huitie_info)
+                                # print(pnum)
+                                # print("-------------------")
                                 comment_data={
                                 "comment_id":commentid_id,
                                 "userid":userid,
                                 "username":username,
                                 "data":k,
-                                "comment_content":huitie_info[pnum]
+                                "comment_content":huitie_info
                                 }
                                 pnum+=1   
+                                
                                 comment_list.append(comment_data)
                             j += 1
-                        db.article_data.insert({
-                            "arc_id":art_id,
-                            "tags":tag_data,
-                            "title":biaoti_text,
-                            "data":fttime,
-                            "publisher_id":publisher_id,
-                            "publisher_name":publisher_name,
-                            "num_visited":ll,
-                            "num_comment":pl,
-                            "related_arc":xg,
-                            "url":hrefT,
-                            "contents":biaoti_info,
-                            "comments":comment_list
-                            })
+                        # db.article_data.insert({
+                        #     "arc_id":art_id,
+                        #     "tags":tag_data,
+                        #     "title":biaoti_text,
+                        #     "data":fttime,
+                        #     "publisher_id":publisher_id,
+                        #     "publisher_name":publisher_name,
+                        #     "num_visited":ll,
+                        #     "num_comment":pl,
+                        #     "related_arc":xg,
+                        #     "url":hrefT,
+                        #     "contents":biaoti_info,
+                        #     "comments":comment_list
+                        #     })
                 
             print('第%s页抓取完毕！'%i)
             i += 1
